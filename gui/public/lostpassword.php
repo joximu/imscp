@@ -77,7 +77,7 @@ $tpl->assign([
     'TR_USERNAME'      => tr('Username'),
     'TR_SEND'          => tr('Send'),
     'TR_CANCEL'        => tr('Cancel'),
-    'UNAME'            => isset($_POST['uname']) ? $_POST['uname'] : ''
+    'UNAME'            => isset($_POST['uname']) ? clean_html($_POST['uname']) : ''
 ]);
 
 if (!empty($_POST)) {

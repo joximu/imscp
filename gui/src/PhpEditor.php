@@ -1060,7 +1060,7 @@ class PhpEditor
         switch ($varname) {
             case 'phpiniAllowUrlFopen':
             case 'phpiniDisplayErrors':
-                return $varname === 'on' || $value === 'off';
+                return $value === 'on' || $value === 'off';
             case 'phpiniErrorReporting':
                 return
                     // Default value
