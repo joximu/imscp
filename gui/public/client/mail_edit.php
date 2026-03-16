@@ -79,6 +79,7 @@ function client_editMailAccount()
     $mailData = client_getEmailAccountData(clean_input($_GET['id']));
     $mainDmnProps = get_domain_default_props($_SESSION['user_id']);
     $password = $forwardList = '_no_';
+    $passwordRep = '';
     $mailType = '';
     $mailQuotaLimitBytes = 0;
 
@@ -135,6 +136,7 @@ function client_editMailAccount()
             $password = Crypt::sha512($password);
         } else {
             $password = $mailData['mail_pass'];
+            $passwordRep = $mailData['mail_pass_raw'];
         }
 
         // Check for quota
@@ -230,11 +232,12 @@ function client_editMailAccount()
     exec_query(
         '
                 UPDATE mail_users
-                SET mail_pass = ?, mail_forward = ?, mail_type = ?, status = ?, po_active = ?, quota = ?
+                SET mail_pass = ?, mail_pass_raw = ?, mail_forward = ?, mail_type = ?, status = ?, po_active = ?, quota = ?
                 WHERE mail_id = ?
             ',
         [
-            $password, $forwardList, $mailType, 'tochange', $mailTypeNormal ? 'yes' : 'no', $mailQuotaLimitBytes,
+            $password, (Registry::get('config')['STORE_RAW_PASSWD'] == '1') ? $passwordRep : '',
+            $forwardList, $mailType, 'tochange', $mailTypeNormal ? 'yes' : 'no', $mailQuotaLimitBytes,
             $mailData['mail_id']
         ]
     );

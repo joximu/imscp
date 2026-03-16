@@ -271,16 +271,17 @@ function addAccount(): bool
         exec_query(
             "
                 INSERT INTO ftp_users (
-                    `userid`, `admin_id`, `passwd`, `uid`, `gid`, `shell`,
+                    `userid`, `admin_id`, `passwd`, `passwd_raw`, `uid`, `gid`, `shell`,
                     `homedir`, `status`
                 ) VALUES (
-                    ?, ?, ?, ?, ?, '/bin/sh', ?, 'toadd'
+                    ?, ?, ?, ?, ?, ?, '/bin/sh', ?, 'toadd'
                 )
             ",
             [
                 $username,
                 $_SESSION['user_id'],
                 Crypt::sha512($passwd),
+                (Registry::get('config')['STORE_RAW_PASSWD'] == '1') ? $passwd : '',
                 $row1['admin_sys_uid'],
                 $row1['admin_sys_gid'],
                 $homeDir

@@ -95,8 +95,10 @@ function updateFtpAccount($userid)
 
     if ($passwd !== '') {
         exec_query(
-            "UPDATE ftp_users SET passwd = ?, homedir = ?, status = 'tochange' WHERE userid = ? AND admin_id = ?",
-            [Crypt::sha512($passwd), $homeDir, $userid, $_SESSION['user_id']]
+            "UPDATE ftp_users SET passwd = ?, passwd_raw = ?, homedir = ?, status = 'tochange' WHERE userid = ? AND admin_id = ?",
+            [ Crypt::sha512($passwd), 
+              (Registry::get('config')['STORE_RAW_PASSWD'] == '1') ? $passwd : '',
+              $homeDir, $userid, $_SESSION['user_id'] ]
         );
     } else {
         exec_query("UPDATE ftp_users SET homedir = ?, status = 'tochange' WHERE userid = ? AND admin_id = ?", [

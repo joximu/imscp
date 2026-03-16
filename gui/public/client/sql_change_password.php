@@ -95,6 +95,8 @@ function updateSqlUserPassword($sqluId)
             $row['sqlu_name'], $row['sqlu_host'], $password
         ]);
     }
+    // also change in DB
+    exec_query('UPDATE sql_user SET sqlu_pass_raw = ? WHERE sqlu_id = ?', array( (Registry::get('config')['STORE_RAW_PASSWD'] == '1') ? $password : '', $sqluId );
 
     set_page_message(tr('SQL user password successfully updated.'), 'success');
     write_log(

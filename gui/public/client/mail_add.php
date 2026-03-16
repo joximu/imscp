@@ -101,6 +101,7 @@ function addMailAccount()
 
     $mainDmnProps = get_domain_default_props($_SESSION['user_id']);
     $password = $forwardList = '_no_';
+    $passwordRep = '';
     $mailType = $subId = '';
     $mailTypeNormal = in_array($_POST['account_type'], ['1', '3']);
     $mailTypeForward = in_array($_POST['account_type'], ['2', '3']);
@@ -266,14 +267,15 @@ function addMailAccount()
         exec_query(
             '
               INSERT INTO mail_users (
-                mail_acc, mail_pass, mail_forward, domain_id, mail_type, sub_id, status, po_active, mail_auto_respond,
+                mail_acc, mail_pass, mail_pass_raw, mail_forward, domain_id, mail_type, sub_id, status, po_active, mail_auto_respond,
                 mail_auto_respond_text, quota, mail_addr
               ) VALUES(
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
               )
             ',
             [
-                $username, $password, $forwardList, $mainDmnProps['domain_id'], $mailType, $subId, 'toadd',
+                $username, $password, (Registry::get('config')['STORE_RAW_PASSWD'] == '1') ? $passwordRep : '',
+                $forwardList, $mainDmnProps['domain_id'], $mailType, $subId, 'toadd',
                 $mailTypeNormal ? 'yes' : 'no', '0', NULL, $mailQuotaLimitBytes, $mailAddr
             ]
         );
