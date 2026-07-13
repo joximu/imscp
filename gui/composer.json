@@ -30,7 +30,11 @@
     "classmap-authoritative": false,
     "preferred-install": "dist",
     "process-timeout": 5000,
-    "use-include-path": false
+    "use-include-path": false,
+    "allow-plugins": {
+      "cweagans/composer-patches": true,
+      "joximu/composer-installers": true
+    }
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
@@ -72,8 +76,8 @@
     "ext-zip": "*",
     "ext-zlib": "*",
     "algo26-matthias/idna-convert": "~2.1.0",
-    "cweagans/composer-patches": "~1.6.6",
-    "imscp/composer-installers": "^1.0",
+    "cweagans/composer-patches": "*",
+    "joximu/composer-installers": "*",
     "league/flysystem": "^1.0",
     "pear/net_dns2": "~1.4.4",
     "phpseclib/phpseclib": "~2.0.20",
@@ -105,10 +109,10 @@
   "extra": {
     "installer-paths": {
       "vendor/{$vendor}/{$name}": [
-        "imscp/monsta-ftp",
-        "imscp/phpmyadmin",
-        "imscp/rainloop",
-        "imscp/roundcube"
+        "joximu/imscp-monsta-ftp",
+        "joximu/imscp-phpmyadmin",
+        "joximu/imscp-rainloop",
+        "joximu/imscp-roundcube"
       ]
     },
     "composer-exit-on-patch-failure": true,

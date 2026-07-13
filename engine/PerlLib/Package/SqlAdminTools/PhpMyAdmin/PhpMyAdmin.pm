@@ -120,7 +120,7 @@ sub registerSetupListeners
                 };
             }
 
-            $composer->require( 'imscp/phpmyadmin', $packageVersionConstraint );
+            $composer->require( 'joximu/imscp-phpmyadmin', $packageVersionConstraint );
             $composer->dumpComposerJson();
         };
         if ( $@ ) {
@@ -144,16 +144,16 @@ sub preinstall
 {
     my ( $self ) = @_;
 
-    unless ( -f "$::imscpConfig{'GUI_ROOT_DIR'}/vendor/imscp/phpmyadmin/src/Handler.pm" ) {
+    unless ( -f "$::imscpConfig{'GUI_ROOT_DIR'}/vendor/joximu/imscp-phpmyadmin/src/Handler.pm" ) {
         error( sprintf(
             "Couldn't find the PhpMyAdmin package handler in the %s directory",
-            "$::imscpConfig{'GUI_ROOT_DIR'}/vendor/imscp/phpmyadmin/src"
+            "$::imscpConfig{'GUI_ROOT_DIR'}/vendor/joximu/imscp-phpmyadmin/src"
         ));
         return 1;
     }
 
     my $rs = iMSCP::File->new(
-        filename => "$::imscpConfig{'GUI_ROOT_DIR'}/vendor/imscp/phpmyadmin/src/Handler.pm"
+        filename => "$::imscpConfig{'GUI_ROOT_DIR'}/vendor/joximu/imscp-phpmyadmin/src/Handler.pm"
     )->copyFile(
         "$::imscpConfig{'ENGINE_ROOT_DIR'}/PerlLib/Package/SqlAdminTools/PhpMyAdmin/Handler.pm"
     );
@@ -209,7 +209,7 @@ sub uninstall
                 composer_home => "$::imscpConfig{'GUI_ROOT_DIR'}/data/persistent/.composer",
                 composer_json => 'composer.json'
             )
-                ->remove( 'imscp/phpmyadmin' )
+                ->remove( 'joximu/imscp-phpmyadmin' )
                 ->dumpComposerJson();
         };
         if ( $@ ) {

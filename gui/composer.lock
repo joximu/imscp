@@ -87,24 +87,24 @@
         },
         {
             "name": "cweagans/composer-patches",
-            "version": "1.6.7",
+            "version": "1.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "2e6f72a2ad8d59cd7e2b729f218bf42adb14f590"
+                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/2e6f72a2ad8d59cd7e2b729f218bf42adb14f590",
-                "reference": "2e6f72a2ad8d59cd7e2b729f218bf42adb14f590",
+                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
+                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "^1.0",
+                "composer-plugin-api": "^1.0 || ^2.0",
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "composer/composer": "~1.0",
+                "composer/composer": "~1.0 || ~2.0",
                 "phpunit/phpunit": "~4.6"
             },
             "type": "composer-plugin",
@@ -127,24 +127,28 @@
                 }
             ],
             "description": "Provides a way to patch Composer packages.",
-            "time": "2019-08-29T20:11:49+00:00"
+            "support": {
+                "issues": "https://github.com/cweagans/composer-patches/issues",
+                "source": "https://github.com/cweagans/composer-patches/tree/1.7.3"
+            },
+            "time": "2022-12-20T22:53:13+00:00"
         },
         {
-            "name": "imscp/composer-installers",
-            "version": "1.0.0",
+            "name": "joximu/composer-installers",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/i-MSCP/composer-installers.git",
-                "reference": "d7874ad960e2e433d324895276512782d1cb670a"
+                "url": "https://github.com/joximu/composer-installers.git",
+                "reference": "d829559a0f3fd13f2d9b6f5b2a4b016fa1438b53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/i-MSCP/composer-installers/zipball/d7874ad960e2e433d324895276512782d1cb670a",
-                "reference": "d7874ad960e2e433d324895276512782d1cb670a",
+                "url": "https://api.github.com/repos/joximu/composer-installers/zipball/d829559a0f3fd13f2d9b6f5b2a4b016fa1438b53",
+                "reference": "d829559a0f3fd13f2d9b6f5b2a4b016fa1438b53",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "^1.1",
+                "composer-plugin-api": "^2.0",
                 "php": "^7.1"
             },
             "conflict": {
@@ -182,17 +186,20 @@
                     "homepage": "https://www.i-mscp.net"
                 }
             ],
-            "description": "i-MSCP composer installers",
+            "description": "i-MSCP-joxi composer installers",
             "homepage": "https://www.i-mscp.net/",
             "keywords": [
-                "imscp",
+                "iMSCP-joxi",
                 "installers",
                 "library",
                 "plugins",
                 "roundcube",
                 "tools"
             ],
-            "time": "2019-03-14T09:40:29+00:00"
+            "support": {
+                "source": "https://github.com/joximu/composer-installers/tree/1.0.2"
+            },
+            "time": "2026-06-17T08:14:48+00:00"
         },
         {
             "name": "league/flysystem",

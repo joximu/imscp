@@ -406,7 +406,7 @@ sub _buildPhpConfFiles
     $rs = $self->{'httpd'}->disableModules(
         'actions', 'fastcgi', 'fcgid', 'fcgid_imscp', 'suexec', 'php5',
         'php5_cgi', 'php5filter',
-        'php5.6', 'php7.0', 'php7.1', 'php7.2', 'php7.3',
+        'php5.6', 'php7.0', 'php7.1', 'php7.2', 'php7.3', 'php7.4', 'php8.0', 'php8.1', 'php8.2', 'php8.3', 'php8.4',
         'proxy_fcgi', 'proxy_handler', 'mpm_itk', 'mpm_event', 'mpm_prefork',
         'mpm_worker'
     );

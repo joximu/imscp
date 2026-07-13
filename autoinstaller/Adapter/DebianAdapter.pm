@@ -1659,7 +1659,7 @@ sub _rebuildAndInstallPackage
                         chomp( $_[0] );
                         return unless $_[0] =~ /^i:\s*(.*)/i;
                         step( undef, <<"EOF", 5, 1 );
-"Creating/Updating pbuilder environment
+Creating/Updating pbuilder environment
 
 - @{ [ ucfirst( $1 ) ] }
  

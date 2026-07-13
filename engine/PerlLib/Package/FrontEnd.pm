@@ -27,6 +27,7 @@ use strict;
 use warnings;
 use File::Basename;
 use File::Spec;
+use Class::Autouse qw/ :nostat iMSCP::Composer /;
 use iMSCP::Boolean;
 use iMSCP::Config;
 use iMSCP::Crypt qw/ ALNUM apr1MD5 randomStr /;
