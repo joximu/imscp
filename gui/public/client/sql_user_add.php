@@ -293,7 +293,7 @@ function addSqlUser($sqldId)
     $row['sqld_name'] = preg_replace('/([%_])/', '\\\\$1', $row['sqld_name']);
 
     exec_query(sprintf('GRANT ALL PRIVILEGES ON %s.* to ?@?', quoteIdentifier($row['sqld_name'])), [$user, $host]);
-    exec_query('INSERT INTO sql_user (sqld_id, sqlu_name, sqlu_host, $sql_pass_raw) VALUES (?, ?, ?, ?)', [
+    exec_query('INSERT INTO sql_user (sqld_id, sqlu_name, sqlu_host, sqlu_pass_raw) VALUES (?, ?, ?, ?)', [
         $sqldId, $user, $host, (Registry::get('config')['STORE_RAW_PASSWD'] == '1') ? $password : ''
     ]);
 

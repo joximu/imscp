@@ -212,7 +212,8 @@ When this feature is enabled, resellers can enable backup feature for their clie
 EOF
     return 30 if $ret == 30;
 
-    ::setupSetQuestion( 'BACKUP_DOMAINS', $ret = 0 );
+    ::setupSetQuestion( 'BACKUP_DOMAINS', $ret ? 'no' : 'yes' );
+
     0;
 }
 

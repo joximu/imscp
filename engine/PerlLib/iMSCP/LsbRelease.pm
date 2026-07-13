@@ -54,12 +54,15 @@ my %RELEASE_CODENAME_LOOKUP = !$IS_DEVUAN ? (
     '11'  => 'bullseye',
     '12'  => 'bookworm',
     '13'  => 'trixie',
+    '14'  => 'forky',
 ) : (
     '1' => 'jessie',
     '2' => 'ascii',
     '3' => 'beowulf',
     '4' => 'chimaera',
     '5' => 'daedalus',
+    '6' => 'excalibur',
+    '7' => 'freia',
 );
 
 my $TESTING_CODENAME = 'unknown.new.testing';
