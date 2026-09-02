@@ -618,19 +618,35 @@ sub _buildConf
                 my $ssl = ::setupGetQuestion( 'SERVICES_SSL_ENABLED' );
                 $cfgTpl .= "\nssl = $ssl\n";
 
-                # Fixme: Find a better way to guess libssl version
-                if ( $ssl eq 'yes' ) {
-#                    unless ( `ldd /usr/lib/dovecot/libdcrypt_openssl.so | grep libssl.so` =~ /libssl.so.(\d.\d)/ ) {
-                    unless ( `ldd /usr/lib/dovecot/libdcrypt_openssl.so | grep libssl.so` =~  /libssl\.so\.(\d+(?:\.\d+)?)/ ) {
-                        error( "Couldn't guess libssl version against which Dovecot has been built" );
-                        return 1;
-                    }
-
-                    $cfgTpl .= <<"EOF";
+                # separate from dovecot versions: 2.2 (deb8+9), 2.3 (deb10-12), 2.4 (from deb13)
+                my $dovecot_ver = version->parse($self->{'config'}->{'DOVECOT_VERSION'});
+                unless ( $dovecot_ver < 'v2.2' ) { # < Deb7 wheezy (2.1.17)
+                    if ( $dovecot_ver < 'v2.3'  ) { # v2.2.x, Deb8 jessie (2.2.13), Deb9 stretch (2.2.27)
+                    # Fixme: Find a better way to guess libssl version
+                        if ( $ssl eq 'yes' ) {
+                            unless ( `ldd /usr/lib/dovecot/libdcrypt_openssl.so | grep libssl.so` =~  /libssl\.so\.(\d+(?:\.\d+)?)/ ) {
+                                error( "Couldn't guess libssl version against which Dovecot has been built" );
+                                return 1;
+                            }
+                            $cfgTpl .= <<"EOF";
 ssl_protocols = @{[ version->parse( $1 ) >= version->parse( '1.1' ) ? '!SSLv3 !TLSv1 !TLSv1.1' : '!SSLv2 !SSLv3 !TLSv1 !TLSv1.1' ]}
 ssl_cert = <$::imscpConfig{'CONF_DIR'}/imscp_services.pem
 ssl_key = <$::imscpConfig{'CONF_DIR'}/imscp_services.pem
 EOF
+                        }
+                    } elsif ( $dovecot_ver < 'v2.4' ) { # v2.3.x Deb10,11,12 buster,bullseye,bookworm (2.3.4/.13/.19)
+                        $cfgTpl .= <<"EOF";
+# min_ssl_protocols = TLSv1
+ssl_cert = $::imscpConfig{'CONF_DIR'}/imscp_services.pem
+ssl_key = $::imscpConfig{'CONF_DIR'}/imscp_services.pem
+EOF
+                    } elsif ( $dovecot_ver < 'v2.5' ) { # v2.4.x Deb13+ trixie (2.4.1)
+                        $cfgTpl .= <<"EOF";
+# min_ssl_protocols = TLSv1.2
+ssl_server_cert_file = $::imscpConfig{'CONF_DIR'}/imscp_services.pem
+ssl_server_key_file = $::imscpConfig{'CONF_DIR'}/imscp_services.pem
+EOF
+                    }
                 }
             }
 

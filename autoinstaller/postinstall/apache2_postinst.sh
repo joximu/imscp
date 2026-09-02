@@ -25,6 +25,11 @@ set -e
 
 APACHE_INSTALLED_VERSION=$(dpkg-query --show --showformat '${Version}' apache2)
 
+# Don't process if Apache2 version is ge 2.4.60
+if dpkg --compare-versions "$APACHE_INSTALLED_VERSION" ge "2.4.60" ; then
+    exit;
+fi
+
 service apache2 stop
 
 # Remove divert if any

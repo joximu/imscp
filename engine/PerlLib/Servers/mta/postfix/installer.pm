@@ -585,10 +585,23 @@ sub _buildMainCfFile
             };
         }
 
-        if ( version->parse( $self->{'config'}->{'POSTFIX_VERSION'} ) >= version->parse( '3.0.0' ) ) {
+        # compatibility_level: pf3.0-pf3.x -> 2,>pg3.6 -> version (3.6, 3.7...)
+        if ( version->parse( $self->{'config'}->{'POSTFIX_VERSION'} ) >= version->parse( '3.0.0' )
+             && version->parse( $self->{'config'}->{'POSTFIX_VERSION'} ) < version->parse( '3.6.0' ) ) {
             $params{'compatibility_level'} = {
                 action => 'replace',
                 values => [ '2' ]
+            };
+        }
+
+        # from Postfix 3.6.0 on: compatibility_level is same as postfix-min-version (eg '3.6' or '3.9')
+        if ( version->parse( $self->{'config'}->{'POSTFIX_VERSION'} ) >= version->parse( '3.6.0' ) ) {
+            # extracts "Major.Minor" from version number (eg "3.9.2" -> "3.9")
+            my $v_obj = version->parse( $self->{'config'}->{'POSTFIX_VERSION'} );
+            my ($major, $minor) = @{ $v_obj->{version} }[0, 1];
+            $params{'compatibility_level'} = {
+                action => 'replace',
+                values => [ "$major." . ($minor // 0) ]
             };
         }
 

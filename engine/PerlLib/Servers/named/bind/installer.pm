@@ -706,6 +706,9 @@ sub _buildConf
         unless ( -f "$self->{'config'}->{'BIND_CONF_DIR'}/bind.keys" ) {
             $tplContent =~ s%include\s+\Q"$self->{'config'}->{'BIND_CONF_DIR'}\E/bind.keys";\n%%;
         }
+        unless ( -f "$self->{'config'}->{'BIND_CONF_DIR'}/named.conf.default-zones" ) {
+            $tplContent =~ s%include\s+\Q"$self->{'config'}->{'BIND_CONF_DIR'}\E/named.conf.default-zones";\n%%;
+        }
 
         $rs = $self->{'events'}->trigger(
             'afterNamedBuildConf', \$tplContent, $tplName

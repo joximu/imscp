@@ -313,7 +313,7 @@ sub _init
         need_pbuilder_update
     /} = (
         iMSCP::EventManager->getInstance(),
-        [ 'main', 'contrib', 'non-free' ],
+        [ 'main' ],
         [
             'apt-transport-https', 'binutils', 'ca-certificates',
             'debconf-utils', 'dialog', 'dirmngr', 'dpkg-dev', 'gnupg',
@@ -324,6 +324,7 @@ sub _init
         ],
         TRUE
     );
+#[ 'main', 'contrib', 'non-free' ],
 
     delete $ENV{'DEBCONF_FORCE_DIALOG'};
     $ENV{'DEBIAN_FRONTEND'} = 'noninteractive' if iMSCP::Getopt->noprompt;
@@ -745,6 +746,12 @@ sub _processAptRepositories
     my $rs = $file->copyFile( '/etc/apt/sources.list.bkp' );
     return $rs if $rs;
 
+    my $keyring_file = '';
+    my $square_bracket_part = '';
+#    my $signed_by = '';
+#    if (-x '/usr/bin/apt-key') {
+#    }
+
     return 1 unless defined( my $fileC = $file->get() );
 
     # Cleanup APT sources.list file
@@ -754,18 +761,16 @@ sub _processAptRepositories
     ) {
         my $escapedRepository = ref $repository eq 'HASH'
             ? $repository->{'repository'} : $repository;
-        $fileC =~ s/^\n?(?:#\s*)?deb(?:-src)?\s+\Q$escapedRepository\E.*?\n//gm;
+        # Look for uncommented *deb* entries with same repository (with or without a [...] block) - remove them
+        #$fileC =~ s/^(?:#\s*)?deb(?:-src)?\s+(?:\[[^\]]+\]\s+)?\Q$escapedRepository\E.*/ /gm;
+        $fileC =~ s/^\s*deb(?:-src)?\s+(?:\[[^\]]+\]\s+)?\Q$escapedRepository\E.*/ /gm;
     }
 
     # Add APT repositories
     for my $repository ( @{ $self->{'_dist'}->{'aptRepositoriesToAdd'} } ) {
-        next if $fileC =~ /^deb\s+$repository->{'repository'}/m;
 
-        $fileC .= <<"EOF";
-
-deb $repository->{'repository'}
-deb-src $repository->{'repository'}
-EOF
+        # next loop if "deb [signed-by=rep] rep" already there
+        next if $fileC =~ /^\s*deb\s+(?:\[signed-by=[^\]]+\]\s+)?\Q$repository->{'repository'}\E/m;
 
         # Hide "apt-key output should not be parsed (stdout is not a terminal)"
         # warning that is raised in newest apt-key versions. Our usage of
@@ -774,8 +779,9 @@ EOF
 
         if ( $repository->{'repository_key_srv'}
             && $repository->{'repository_key_id'}
-        ) {
-            # Add the repository key from the given key server
+        ) { # Ubuntu (srv+id)
+            # Add the repository key from the given key server, the Ubuntu variant
+          if (-x '/usr/bin/apt-key') { # with apt-key <= 24.04LTS noble numbat
             $rs = execute(
                 [
                     '/usr/bin/apt-key',
@@ -797,8 +803,14 @@ EOF
                 \$stdout,
                 \$stderr
             );
-        } elsif ( $repository->{'repository_key_uri'} ) {
-            # Add the repository key by fetching it first from the given URI
+
+          } else { # >= 26.04 resolute racoon
+print "to be programmed - without apt-key.\n";
+debug( "to be programmed - without apt-key." );
+          }
+        } elsif ( $repository->{'repository_key_uri'} ) { # Debian/Devuan
+            # Add the repository key by fetching it from the given URI
+          if (-x '/usr/bin/apt-key') { # <= bookworm 12, deadalus 5
             my $keyFile = File::Temp->new();
             $keyFile->close();
             $rs = execute(
@@ -825,7 +837,41 @@ EOF
             debug( $stdout ) if length $stdout;
             error( $stderr || 'Unknown error' ) if $rs;
             return $rs if $rs;
+          } else { # >= trixie 13, excalibur 6
+            # use hostname for keyring_file
+            my ($hostfilename) = $repository->{'repository_key_uri'} =~ m{^https?://([^/:\s]+)};
+            if (!$hostfilename) {
+# to be improved...
+              die "error: hostname could not be extracted from repository url: $repository->{'repository_key_uri'} \n";
+            }
+
+            $keyring_file = "/etc/apt/keyrings/$hostfilename.gpg";
+            $square_bracket_part = "[signed-by=$keyring_file]";
+
+            $rs = execute(
+                [
+                    '/usr/bin/wget',
+                    '--prefer-family=IPv4',
+                    '--timeout=30',
+                    '-O',
+                    $keyring_file,
+                    $repository->{'repository_key_uri'}
+                ],
+                \my $stdout,
+                \my $stderr
+            );
+            debug( $stdout ) if length $stdout;
+            error( $stderr || 'Unknown error' ) if $rs;
+            return $rs if $rs;
+          }
         }
+# insert into .list file
+        $fileC .= <<"EOF";
+
+deb $square_bracket_part $repository->{'repository'}
+#deb-src $square_bracket_part $repository->{'repository'}
+EOF
+
     }
 
     $file->set( $fileC );
@@ -1171,7 +1217,8 @@ sub _processPackagesFile
                 repository         => $data->{'repository'},
                 repository_key_uri => $data->{'repository_key_uri'},
                 repository_key_id  => $data->{'repository_key_id'},
-                repository_key_srv => $data->{'repository_key_srv'}
+                repository_key_srv => $data->{'repository_key_srv'},
+                repository_sect    => $section
             };
         }
 
@@ -1263,7 +1310,8 @@ sub _processPackagesFile
                     repository         => $data->{$selectedAlt}->{'repository'},
                     repository_key_uri => $data->{$selectedAlt}->{'repository_key_uri'},
                     repository_key_id  => $data->{$selectedAlt}->{'repository_key_id'},
-                    repository_key_srv => $data->{$selectedAlt}->{'repository_key_srv'}
+                    repository_key_srv => $data->{$selectedAlt}->{'repository_key_srv'},
+                    repository_sect    => $section
                 };
             }
 

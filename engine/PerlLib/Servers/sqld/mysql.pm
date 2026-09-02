@@ -75,9 +75,9 @@ sub preinstall
 {
     my ( $self ) = @_;
 
-    my $rs = $self->{'events'}->trigger( 'beforeSqldPreinstall', 'mysql' );
+    my $rs = $self->{'events'}->trigger( 'beforeSqldPreinstall', $self->{'_service_name'} );
     $rs ||= Servers::sqld::mysql::installer->getInstance()->preinstall();
-    $rs ||= $self->{'events'}->trigger( 'afterSqldPreinstall', 'mysql' );
+    $rs ||= $self->{'events'}->trigger( 'afterSqldPreinstall', $self->{'_service_name'} );
 }
 
 =item postinstall( )
@@ -92,25 +92,34 @@ sub postinstall
 {
     my ( $self ) = @_;
 
-    my $rs = $self->{'events'}->trigger( 'beforeSqldPostInstall', 'mysql' );
+    my $rs = $self->{'events'}->trigger( 'beforeSqldPostInstall', $self->{'_service_name'} );
     return $rs if $rs;
 
     local $@;
-    eval { iMSCP::Service->getInstance()->enable( 'mysql' ); };
+    eval { iMSCP::Service->getInstance()->enable( $self->{'_service_name'} ); };
     if ( $@ ) {
         error( $@ );
         return 1;
     }
 
+    my %db_labels = (
+     'mysql'   => 'MySQL',
+     'mariadb' => 'MariaDB',
+     'percona' => 'Percona'
+    );
+
     $rs = $self->{'events'}->register(
         'beforeSetupRestartServices',
         sub {
-            push @{ $_[0] }, [ sub { $self->restart(); }, 'MySQL' ];
+            push @{ $_[0] }, [ 
+              sub { $self->restart(); }, $db_labels{ $self->{ '_service_name' } } || 'MySQL' 
+            ];
             0;
         },
         7
     );
-    $rs ||= $self->{'events'}->trigger( 'afterSqldPostInstall', 'mysql' );
+
+    $rs ||= $self->{'events'}->trigger( 'afterSqldPostInstall', $self->{'_service_name'} );
 }
 
 =item uninstall( )
@@ -125,9 +134,9 @@ sub uninstall
 {
     my ( $self ) = @_;
 
-    my $rs = $self->{'events'}->trigger( 'beforeSqldUninstall', 'mysql' );
+    my $rs = $self->{'events'}->trigger( 'beforeSqldUninstall', $self->{'_service_name'} );
     $rs ||= Servers::sqld::mysql::uninstaller->getInstance()->uninstall();
-    $rs ||= $self->{'events'}->trigger( 'afterSqldUninstall', 'mysql' );
+    $rs ||= $self->{'events'}->trigger( 'afterSqldUninstall', $self->{'_service_name'} );
     $rs ||= $self->restart() unless $rs;
     $rs;
 }
@@ -177,7 +186,7 @@ sub restart
     return $rs if $rs;
 
     local $@;
-    eval { iMSCP::Service->getInstance()->restart( 'mysql' ); };
+    eval { iMSCP::Service->getInstance()->restart( $self->{'_service_name'} ); };
     if ( $@ ) {
         error( $@ );
         return 1;
@@ -314,6 +323,23 @@ sub _init
         fileName    => "$self->{'cfgDir'}/mysql.data",
         readonly    => !( defined $::execmode && $::execmode eq 'setup' ),
         nodeferring => ( defined $::execmode && $::execmode eq 'setup' );
+
+    # get service name dynamically (debian & devuan)
+    my $dbType = $self->getType() // 'mariadb'; # Fallback to 'mariadb' if getType doen't know
+    if ( $dbType && -f "/etc/init.d/$dbType" && -x "/etc/init.d/$dbType" ) {
+        $self->{'_service_name'} = $dbType;
+    } else {
+      if (-x '/etc/init.d/mariadb') { 
+        $self->{'_service_name'} = 'mariadb'; 
+      } else {
+        if (-x '/etc/init.d/mysql') { 
+          $self->{'_service_name'} = 'mysql';
+        } else {
+          $self->{'_service_name'} = 'mariadb';
+        }
+      } 
+    } # end service name
+
     $self;
 }
 

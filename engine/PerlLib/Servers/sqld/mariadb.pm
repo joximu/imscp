@@ -57,39 +57,6 @@ sub preinstall
     $rs ||= $self->{'events'}->trigger( 'afterSqldPreinstall', 'mariadb' )
 }
 
-=item postinstall( )
-
- Post-installation tasks
-
- Return int 0
-
-=cut
-
-sub postinstall
-{
-    my ( $self ) = @_;
-
-    my $rs = $self->{'events'}->trigger( 'beforeSqldPostInstall', 'mariadb' );
-
-    local $@;
-    eval { iMSCP::Service->getInstance()->enable( 'mariadb' ); };
-    if ( $@ ) {
-        error( $@ );
-        return 1;
-    }
-
-    $rs = $self->{'events'}->register(
-        'beforeSetupRestartServices',
-        sub {
-            push @{ $_[0] }, [ sub { $self->restart(); }, 'MariaDB' ];
-            0;
-        },
-        7
-    );
-
-    $rs ||= $self->{'events'}->trigger( 'afterSqldPostInstall', 'mariadb' );
-}
-
 =item uninstall( )
 
  Uninstallation tasks
@@ -120,20 +87,20 @@ sub uninstall
 
 sub createUser
 {
-    my ( undef, $user, $host, $password ) = @_;
+    my ( $self, $user, $host, $password ) = @_;
 
     defined $user or die( '$user parameter is not defined' );
     defined $host or die( '$host parameter is not defined' );
-    defined $user or die( '$password parameter is not defined' );
+    defined $password or die( '$password parameter is not defined' );
 
     eval {
         my $dbh = iMSCP::Database->factory()->getRawDb();
         $dbh->do(
-            'CREATE USER ?@? IDENTIFIED BY ?',
-            undef,
-            $user,
-            $host,
-            $password
+            'CREATE USER ?@? IDENTIFIED BY ?'
+                . ( version->parse( $self->getVersion()) >= version->parse( '10.4.5' )
+                ? ' PASSWORD EXPIRE NEVER' : ''
+            ),
+            undef, $user, $host, $password
         );
     };
     !$@ or die( sprintf(

@@ -172,7 +172,14 @@ sub isRunning
             undef,
             \my $stderr
         );
-        croak( $stderr ) if $ret && length $stderr;
+
+        # no croak only because of message
+        #croak( $stderr ) if $ret && length $stderr;
+        # If stderr message -> write to debug log
+        if ( defined $stderr && length $stderr ) {
+            debug("Service '$service' status output on STDERR: $stderr");
+        }
+
         return $ret == 0;
     }
 
