@@ -653,13 +653,13 @@
             description="SQL server"
             has_alternatives="1"
     >
-        <mariadb_10.11
+        <mariadb_11.8
                 allow_upgrade_from="
-                    remote_server,mariadb_10.0,mariadb_10.1,mariadb_10.2,mariadb_10.3,mariadb_10.5
+                    remote_server,mariadb_10.0,mariadb_10.1,mariadb_10.2,mariadb_10.3,mariadb_10.5,mariadb_10.11
                 "
                 class="Servers::sqld::mariadb"
                 default="1"
-                description="MariaDB 10.11"
+                description="MariaDB 11.8"
                 pinning_package="
                     libmariadb3 mariadb-client mariadb-common
                     mariadb-server-core mysql-common
@@ -675,7 +675,7 @@
             >
                 mariadb-server
             </package>
-        </mariadb_10.11>
+        </mariadb_11.8>
         <remote_server
                 class="Servers::sqld::remote"
                 description="Remote SQL server"
@@ -751,6 +751,15 @@
         <package>pbzip2</package>
         <package>perl</package>
         <package>pigz</package>
+        <!--
+            i-MSCP's mail traffic accounting reads a plain text log:
+            Servers::mta::postfix::getTraffic() opens
+            $TRAFF_LOG_DIR/$MAIL_TRAFF_LOG with Tie::File and tracks a line
+            index across runs. Debian 13 ships no syslog daemon by default,
+            so without this nothing writes /var/log/mail.log and all mail
+            traffic silently counts as zero.
+        -->
+        <package>rsyslog</package> 
         <package>ssh</package>
         <package>sudo</package>
         <package>tar</package>

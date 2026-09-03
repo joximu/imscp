@@ -72,7 +72,7 @@ sub process
     my @sql;
     if ( $self->{'status'} =~ /^to(?:add|change)$/ ) {
         $rs = $self->add();
-        @sql = ( 'UPDATE ssl_certs SET status = ? WHERE cert_id = ?', undef,
+        @sql = ( 'UPDATE ssl_certs SET status = ? WHERE cert_id = ?',
             ( $rs
                 ? getMessageByType( 'error', { amount => 1, remove => TRUE } )
                 : 'ok'
@@ -81,9 +81,9 @@ sub process
     } elsif ( $self->{'status'} eq 'todelete' ) {
         $rs = $self->delete();
         @sql = $rs
-            ? ( 'UPDATE ssl_certs SET status = ? WHERE cert_id = ?', undef,
+            ? ( 'UPDATE ssl_certs SET status = ? WHERE cert_id = ?',
             getLastError( 'error' ) || 'Unknown error', $data->{'id'} )
-            : ( 'DELETE FROM ssl_certs WHERE cert_id = ?', undef, $data->{'id'} );
+            : ( 'DELETE FROM ssl_certs WHERE cert_id = ?', $data->{'id'} );
     } else {
         warning( sprintf(
             'Unknown action (%s) for SSL certificate (ID %d)',

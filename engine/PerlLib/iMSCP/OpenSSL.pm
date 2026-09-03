@@ -150,7 +150,7 @@ sub validateCertificate
         return FALSE;
     }
 
-    $self->{'ca_bundle_container_path'} = undef $caBundle;
+    $self->{'ca_bundle_container_path'} = undef unless $caBundle;
     TRUE;
 }
 
