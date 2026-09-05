@@ -94,8 +94,8 @@ sub process
     }
 
     local $@;
-    eval {.
-      $self->{'_dbh'}->do( $sql[0], undef, @sql[1..$#sql] );.
+    eval {
+      $self->{'_dbh'}->do( $sql[0], undef, @sql[1..$#sql] );
     };
     if ( $@ ) {
         error( $@ );

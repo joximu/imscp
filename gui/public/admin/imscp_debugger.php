@@ -579,6 +579,7 @@ $rqstCount += debugger_countRequests('status', 'htaccess');
 $rqstCount += debugger_countRequests('status', 'htaccess_groups');
 $rqstCount += debugger_countRequests('status', 'htaccess_users');
 $rqstCount += debugger_countRequests('ip_status', 'server_ips');
+$rqstCount += debugger_countRequests('status', 'ssl_certs');
 $rqstCount += debugger_countRequests(); // Plugin items
 
 if (isset($_GET['action'])) {
